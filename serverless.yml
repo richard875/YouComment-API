@@ -1,0 +1,127 @@
+service: ycapi
+
+custom:
+  settings:
+    POSTS_TABLE: ycvideos
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  region: ap-southeast-2
+  environment: ${self:custom.settings}
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - dynamodb:*
+        - s3:*
+        - ses:*
+        - logs:CreateLogGroup,
+        - logs:CreateLogStream,
+        - logs:PutLogEvents,
+        - logs:DescribeLogStreams
+      Resource:
+        "*"
+        # - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.settings.POSTS_TABLE}"
+
+functions:
+  createVideo:
+    handler: handler.createVideo
+    events:
+      - http:
+          path: /post
+          method: post
+  getAllVideos:
+    handler: handler.getAllVideos
+    events:
+      - http:
+          path: /posts
+          method: get
+  # getPosts:
+  #   handler: handler.getPosts
+  #   events:
+  #     - http:
+  #         path: /posts/{number}
+  #         method: get
+  getPost:
+    handler: handler.getPost
+    events:
+      - http:
+          path: /getOneComment/{videoID}/timeStamp/{creatSort}
+          method: get
+  getAllVideoID:
+    handler: handler.getAllVideoID
+    events:
+      - http:
+          path: /video/{videoID}
+          method: get
+          cors: true
+  likeComment:
+    handler: handler.likeComment
+    events:
+      - http:
+          path: /like/{videoID}/timeStamp/{creatSort}
+          method: put
+  unLikeComment:
+    handler: handler.unLikeComment
+    events:
+      - http:
+          path: /unLike/{videoID}/timeStamp/{creatSort}
+          method: put
+  disLikeComment:
+    handler: handler.disLikeComment
+    events:
+      - http:
+          path: /disLike/{videoID}/timeStamp/{creatSort}
+          method: put
+  unDisLikeComment:
+    handler: handler.unDisLikeComment
+    events:
+      - http:
+          path: /unDisLike/{videoID}/timeStamp/{creatSort}
+          method: put
+  deleteMainComment:
+    handler: handler.deleteMainComment
+    events:
+      - http:
+          path: /deleteComment/{videoID}/timeStamp/{creatSort}
+          method: delete
+  replyToMainComment:
+    handler: handler.replyToMainComment
+    events:
+      - http:
+          path: /replyToMainComment/{videoID}/timeStamp/{creatSort}
+          method: put
+
+resources:
+  Resources:
+    PostsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.settings.POSTS_TABLE}
+        AttributeDefinitions:
+          - AttributeName: "videoID"
+            AttributeType: "S"
+          - AttributeName: "creatSort"
+            AttributeType: "N"
+          - AttributeName: "trend"
+            AttributeType: "N"
+        KeySchema:
+          - AttributeName: "videoID"
+            KeyType: "HASH"
+          - AttributeName: "creatSort"
+            KeyType: "RANGE"
+        #BillingMode: PAY_PER_REQUEST
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        LocalSecondaryIndexes:
+          - IndexName: "myLSI"
+            KeySchema:
+              - AttributeName: "videoID"
+                KeyType: "HASH"
+              - AttributeName: "trend"
+                KeyType: "RANGE"
+            Projection:
+              # NonKeyAttributes:
+              #   - "creatSort"
+              ProjectionType: "ALL"
