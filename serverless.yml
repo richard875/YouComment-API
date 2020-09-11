@@ -30,12 +30,14 @@ functions:
       - http:
           path: /post
           method: post
+          cors: true
   getAllVideos:
     handler: handler.getAllVideos
     events:
       - http:
           path: /posts
           method: get
+          cors: true
   # getPosts:
   #   handler: handler.getPosts
   #   events:
@@ -48,6 +50,7 @@ functions:
       - http:
           path: /getOneComment/{videoID}/timeStamp/{creatSort}
           method: get
+          cors: true
   getAllVideoID:
     handler: handler.getAllVideoID
     events:
@@ -61,36 +64,42 @@ functions:
       - http:
           path: /like/{videoID}/timeStamp/{creatSort}
           method: put
+          cors: true
   unLikeComment:
     handler: handler.unLikeComment
     events:
       - http:
           path: /unLike/{videoID}/timeStamp/{creatSort}
           method: put
+          cors: true
   disLikeComment:
     handler: handler.disLikeComment
     events:
       - http:
           path: /disLike/{videoID}/timeStamp/{creatSort}
           method: put
+          cors: true
   unDisLikeComment:
     handler: handler.unDisLikeComment
     events:
       - http:
           path: /unDisLike/{videoID}/timeStamp/{creatSort}
           method: put
+          cors: true
   deleteMainComment:
     handler: handler.deleteMainComment
     events:
       - http:
           path: /deleteComment/{videoID}/timeStamp/{creatSort}
           method: delete
+          cors: true
   replyToMainComment:
     handler: handler.replyToMainComment
     events:
       - http:
           path: /replyToMainComment/{videoID}/timeStamp/{creatSort}
           method: put
+          cors: true
 
 resources:
   Resources:
