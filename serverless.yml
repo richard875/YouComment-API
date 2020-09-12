@@ -28,7 +28,7 @@ functions:
     handler: handler.createVideo
     events:
       - http:
-          path: /post
+          path: /createVideo
           method: post
           cors: true
   getAllVideos:

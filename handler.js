@@ -66,16 +66,15 @@ module.exports.createVideo = (event, context, callback) => {
     replies: [],
   };
 
-  return db
-    .put({
-      TableName: postsTable,
-      Item: post,
-    })
+  db.put({
+    TableName: postsTable,
+    Item: post,
+  })
     .promise()
     .then(() => {
       callback(null, response(201, post));
     })
-    .catch((err) => response(null, response(err.statusCode, err)));
+    .catch((err) => callback(null, response(err.statusCode, err)));
 };
 
 // Get all posts
