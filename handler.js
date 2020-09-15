@@ -59,6 +59,7 @@ module.exports.createVideo = (event, context, callback) => {
       likes: 0,
       disLikes: 0,
     },
+    reaction: {},
     trend: Date.parse(new Date().toISOString()) + rand,
     creatSort: Date.parse(new Date().toISOString()) + rand,
     createdAt: new Date().toISOString(),
@@ -153,6 +154,7 @@ module.exports.getPost = (event, context, callback) => {
 
 // Like Main Post
 module.exports.likeComment = (event, context, callback) => {
+  const reqBody = JSON.parse(event.body);
   const videoID = event.pathParameters.videoID;
   const creatSort = event.pathParameters.creatSort;
 
@@ -164,10 +166,12 @@ module.exports.likeComment = (event, context, callback) => {
     TableName: postsTable,
     //ConditionExpression: "attribute_exists(id)",
     UpdateExpression:
-      "SET reviews.likes = reviews.likes + :val, trend = trend + :dateNow",
+      "SET reaction.#uniqueID = :conidition, reviews.likes = reviews.likes + :val, trend = trend + :dateNow",
+    ExpressionAttributeNames: { "#uniqueID": reqBody.id },
     ExpressionAttributeValues: {
       ":val": 1,
       ":dateNow": parseInt(Date.parse(new Date().toISOString())),
+      ":conidition": "liked",
     },
     //ReturnValues: "UPDATED_NEW",
     ReturnValues: "ALL_NEW",
@@ -186,6 +190,42 @@ module.exports.likeComment = (event, context, callback) => {
 
 // Unlike Main Post
 module.exports.unLikeComment = (event, context, callback) => {
+  const reqBody = JSON.parse(event.body);
+  const videoID = event.pathParameters.videoID;
+  const creatSort = event.pathParameters.creatSort;
+
+  const params = {
+    Key: {
+      videoID: videoID,
+      creatSort: parseInt(creatSort),
+    },
+    TableName: postsTable,
+    //ConditionExpression: "attribute_exists(id)",
+    UpdateExpression:
+      "SET reaction.#uniqueID = :conidition, reviews.likes = reviews.likes - :val, trend = trend - :dateNow",
+    ExpressionAttributeNames: { "#uniqueID": reqBody.id },
+    ExpressionAttributeValues: {
+      ":val": 1,
+      ":dateNow": parseInt(Date.parse(new Date().toISOString())),
+      ":conidition": "undecided",
+    },
+    //ReturnValues: "UPDATED_NEW",
+    ReturnValues: "ALL_NEW",
+  };
+  console.log("Updating");
+
+  return db
+    .update(params)
+    .promise()
+    .then((res) => {
+      //console.log(res);
+      callback(null, response(200, res.Attributes));
+    })
+    .catch((err) => callback(null, response(err.statusCode, err)));
+};
+
+// Unlike Main Post without changing reaction
+module.exports.unLikeCommentWithout = (event, context, callback) => {
   const videoID = event.pathParameters.videoID;
   const creatSort = event.pathParameters.creatSort;
 
@@ -219,6 +259,7 @@ module.exports.unLikeComment = (event, context, callback) => {
 
 // Dislike Main Post
 module.exports.disLikeComment = (event, context, callback) => {
+  const reqBody = JSON.parse(event.body);
   const videoID = event.pathParameters.videoID;
   const creatSort = event.pathParameters.creatSort;
 
@@ -230,10 +271,12 @@ module.exports.disLikeComment = (event, context, callback) => {
     TableName: postsTable,
     //ConditionExpression: "attribute_exists(id)",
     UpdateExpression:
-      "SET reviews.disLikes = reviews.disLikes + :val, trend = trend - :dateNow",
+      "SET reaction.#uniqueID = :conidition, reviews.disLikes = reviews.disLikes + :val, trend = trend - :dateNow",
+    ExpressionAttributeNames: { "#uniqueID": reqBody.id },
     ExpressionAttributeValues: {
       ":val": 1,
       ":dateNow": parseInt(Date.parse(new Date().toISOString())),
+      ":conidition": "unLiked",
     },
     //ReturnValues: "UPDATED_NEW",
     ReturnValues: "ALL_NEW",
@@ -252,6 +295,42 @@ module.exports.disLikeComment = (event, context, callback) => {
 
 // unDislike Main Post
 module.exports.unDisLikeComment = (event, context, callback) => {
+  const reqBody = JSON.parse(event.body);
+  const videoID = event.pathParameters.videoID;
+  const creatSort = event.pathParameters.creatSort;
+
+  const params = {
+    Key: {
+      videoID: videoID,
+      creatSort: parseInt(creatSort),
+    },
+    TableName: postsTable,
+    //ConditionExpression: "attribute_exists(id)",
+    UpdateExpression:
+      "SET reaction.#uniqueID = :conidition, reviews.disLikes = reviews.disLikes - :val, trend = trend + :dateNow",
+    ExpressionAttributeNames: { "#uniqueID": reqBody.id },
+    ExpressionAttributeValues: {
+      ":val": 1,
+      ":dateNow": parseInt(Date.parse(new Date().toISOString())),
+      ":conidition": "undecided",
+    },
+    //ReturnValues: "UPDATED_NEW",
+    ReturnValues: "ALL_NEW",
+  };
+  console.log("Updating");
+
+  return db
+    .update(params)
+    .promise()
+    .then((res) => {
+      //console.log(res);
+      callback(null, response(200, res.Attributes));
+    })
+    .catch((err) => callback(null, response(err.statusCode, err)));
+};
+
+// unDislike Main Post without changing reaction
+module.exports.unDisLikeCommentWithout = (event, context, callback) => {
   const videoID = event.pathParameters.videoID;
   const creatSort = event.pathParameters.creatSort;
 

@@ -72,6 +72,13 @@ functions:
           path: /unLike/{videoID}/timeStamp/{creatSort}
           method: put
           cors: true
+  unLikeCommentWithout:
+    handler: handler.unLikeCommentWithout
+    events:
+      - http:
+          path: /unLikeWithout/{videoID}/timeStamp/{creatSort}
+          method: put
+          cors: true
   disLikeComment:
     handler: handler.disLikeComment
     events:
@@ -84,6 +91,13 @@ functions:
     events:
       - http:
           path: /unDisLike/{videoID}/timeStamp/{creatSort}
+          method: put
+          cors: true
+  unDisLikeCommentWithout:
+    handler: handler.unDisLikeCommentWithout
+    events:
+      - http:
+          path: /unDisLikeWithout/{videoID}/timeStamp/{creatSort}
           method: put
           cors: true
   deleteMainComment:
