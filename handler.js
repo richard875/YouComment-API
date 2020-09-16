@@ -65,6 +65,7 @@ module.exports.createVideo = (event, context, callback) => {
     createdAt: new Date().toISOString(),
     body: reqBody.body,
     replies: [],
+    googleID: reqBody.googleID,
   };
 
   db.put({
