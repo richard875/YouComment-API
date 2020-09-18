@@ -66,6 +66,7 @@ module.exports.createVideo = (event, context, callback) => {
     body: reqBody.body,
     replies: [],
     googleID: reqBody.googleID,
+    edited: false,
   };
 
   db.put({
@@ -423,6 +424,39 @@ module.exports.replyToMainComment = (event, context, callback) => {
     ReturnValues: "ALL_NEW",
   };
   console.log("Updating");
+
+  return db
+    .update(params)
+    .promise()
+    .then((res) => {
+      //console.log(res);
+      callback(null, response(200, res.Attributes));
+    })
+    .catch((err) => callback(null, response(err.statusCode, err)));
+};
+
+// Edit a comment
+module.exports.editComment = (event, context, callback) => {
+  const reqBody = JSON.parse(event.body);
+
+  const videoID = event.pathParameters.videoID;
+  const creatSort = event.pathParameters.creatSort;
+
+  const params = {
+    Key: {
+      videoID: videoID,
+      creatSort: parseInt(creatSort),
+    },
+    TableName: postsTable,
+    //ConditionExpression: "attribute_exists(id)",
+    UpdateExpression: "SET body = :b, edited = :t",
+    ExpressionAttributeValues: {
+      ":b": reqBody.body,
+      ":t": true,
+    },
+    //ReturnValues: "UPDATED_NEW",
+    ReturnValues: "ALL_NEW",
+  };
 
   return db
     .update(params)

@@ -114,6 +114,13 @@ functions:
           path: /replyToMainComment/{videoID}/timeStamp/{creatSort}
           method: put
           cors: true
+  editComment:
+    handler: handler.editComment
+    events:
+      - http:
+          path: /editComment/{videoID}/timeStamp/{creatSort}
+          method: put
+          cors: true
 
 resources:
   Resources:
